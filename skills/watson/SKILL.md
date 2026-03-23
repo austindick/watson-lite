@@ -54,6 +54,26 @@ Assess the user's request:
   - question: "Want to think through the design first, or should I just start building?"
   - options: ["Think it through first", "Just start building"]
 
+## Figma Data Pre-fetch
+
+If the user includes a Figma link (e.g., `figma.com/design/...`, `figma.com/file/...`) with their prototype request **and** the prototype is complex enough for a design discussion (Step 3), **spawn a background agent to fetch the Figma data before starting the discussion:**
+
+1. **Spawn a background agent** that:
+   - Calls `mcp__figma__get_figma_data` to fetch the frame's structure, components, and layout
+   - Summarizes what it finds: component hierarchy, key UI elements, layout patterns, text content, colors and styles observed
+   - Returns the summary when complete
+
+   Tell the user naturally:
+   > *"I'm fetching the Figma data in the background. While that loads, let's talk through the design."*
+
+2. **Proceed immediately to Step 3** in the foreground. The discussion is about UX decisions and doesn't depend on the Figma data.
+
+3. **Converge at Step 4 (Build).** Before building, check that the background agent has completed. Use the Figma summary alongside the discussion decisions to inform the build — component structure, layout, spacing, and visual details from Figma; flow, interactions, and states from the discussion.
+
+If the prototype is simple (skipping Step 3), don't parallelize — just fetch the Figma data sequentially before building.
+
+If no Figma link was provided, skip this step entirely.
+
 ## Step 3: Design Discussion
 
 ### Reference Prototype Lookup
@@ -213,37 +233,6 @@ Then:
 - options: ["Let's build", "I want to change something"]
 
 If "I want to change something" — ask what to revisit and loop back.
-
-## Step 4: Build
-
-### Visual Reference → Loupe Handoff
-
-Before building, check whether you have a visual reference to work from.
-
-**Auto-detect — invoke Loupe without asking:**
-
-If the user's prompt includes any of the following alongside a prototype or build request, skip the reference question and invoke Loupe immediately:
-- A Figma link (e.g., `figma.com/design/...`, `figma.com/file/...`)
-- An image attachment (screenshot, mockup, exported frame)
-- A file path pointing to frontend source code (e.g., `.tsx`, `.jsx`, `.vue`, `.svelte`, `.css`, `.scss`)
-
-Hand off to Loupe's two-pass workflow (token extraction → structural build) using the provided reference as input. Read and follow the Loupe skill at `~/.claude/skills/loupe/SKILL.md` — don't duplicate its instructions here.
-
-**Prompt when no reference is provided:**
-
-If no visual reference was included, ask before proceeding:
-
-- header: "Reference"
-- question: "Do you have a visual reference? I can work from a Figma link, screenshot, or path to existing source code to match the design accurately."
-- options: ["I'll share one now", "No, proceed without"]
-
-If the user provides a reference, invoke Loupe. If they say no, continue normally.
-
-**Watson vs. Loupe responsibilities:**
-- **Watson** owns the design thinking: problem framing, UX rationale, interaction patterns, component decisions, creative direction.
-- **Loupe** owns visual fidelity: extracting exact colors, typography, spacing, radii, and shadows from a reference, then ensuring the build uses those tokens.
-
-Frame the handoff naturally — not as two separate tools, but one continuous workflow: *"Let me pull the design tokens from this frame first, then I'll build the component using those exact values."*
 
 ### Scaffolding
 
