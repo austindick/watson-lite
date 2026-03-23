@@ -5,7 +5,7 @@ A Claude Code skill for structured prototype creation in Faire's Prototype Playg
 ## What it does
 
 - **Design discussion** before building — works through user flows, interactions, states, and layout decisions using structured questions
-- **Loupe integration** — automatically invokes the Loupe skill when visual references (Figma links, screenshots, source code) are provided
+- **Figma pre-fetch** — when a Figma link is provided, fetches frame data in the background while the discussion runs in parallel
 - **Complexity-adaptive** — skips the discussion for simple prototypes, expands for complex ones
 - **Pattern research** — optionally researches how other companies solve the same UX problem
 - **Full scaffolding** — creates all required files (page, route, config, tool entry) following playground conventions
